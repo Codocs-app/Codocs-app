@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './App.css';
 
+const GEMINI_API_KEY = 'AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+
 export default function App() {
   const [code, setCode] = useState('');
   const [documentation, setDocumentation] = useState('');
@@ -13,9 +15,8 @@ export default function App() {
       return;
     }
 
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      setError('API key is not configured. Please set VITE_GEMINI_API_KEY environment variable.');
+    if (!GEMINI_API_KEY) {
+      setError('API key is not configured.');
       return;
     }
 
@@ -25,7 +26,7 @@ export default function App() {
 
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: {
