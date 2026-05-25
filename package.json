@@ -1,7 +1,7 @@
 {
   "name": "codocs",
   "version": "1.0.0",
-  "description": "AI-powered code documentation generator using Claude API",
+  "description": "AI-powered code documentation generator using Google Gemini API",
   "type": "module",
   "main": "src/main.jsx",
   "scripts": {
@@ -12,8 +12,7 @@
   },
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@anthropic-ai/sdk": "^0.20.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
