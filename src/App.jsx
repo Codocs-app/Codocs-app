@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import Anthropic from '@anthropic-ai/sdk';
 import './App.css';
-
-const client = new Anthropic();
 
 export default function App() {
   const [code, setCode] = useState('');
@@ -16,18 +13,30 @@ export default function App() {
       return;
     }
 
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      setError('API key is not configured. Please set VITE_GEMINI_API_KEY environment variable.');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setDocumentation('');
 
     try {
-      const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 2048,
-        messages: [
-          {
-            role: 'user',
-            content: `Generate comprehensive documentation for the following code. Include:
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `Generate comprehensive documentation for the following code. Include:
 - A brief description of what the code does
 - Function/method signatures and parameters
 - Return values and types
@@ -39,21 +48,25 @@ ${code}
 \`\`\`
 
 Please format the documentation in Markdown.`,
-          },
-        ],
-      });
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+      );
 
-      const docText = message.content
-        .filter((block) => block.type === 'text')
-        .map((block) => block.text)
-        .join('\n');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+      }
 
+      const data = await response.json();
+      const docText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No documentation generated';
       setDocumentation(docText);
     } catch (err) {
-      setError(
-        `Error generating documentation: ${err.message || 'Unknown error occurred'}`,
-      );
-      console.error('Claude API Error:', err);
+      setError(`Error generating documentation: ${err.message || 'Unknown error occurred'}`);
+      console.error('Gemini API Error:', err);
     } finally {
       setLoading(false);
     }
@@ -74,7 +87,7 @@ Please format the documentation in Markdown.`,
     <div className="app-container">
       <header className="app-header">
         <h1>📚 Codocs - AI Code Documentation Generator</h1>
-        <p>Generate comprehensive documentation for your code using Claude AI</p>
+        <p>Generate comprehensive documentation for your code using Google Gemini AI</p>
       </header>
 
       <main className="app-main">
@@ -159,7 +172,7 @@ Please format the documentation in Markdown.`,
         {loading && (
           <div className="loading-state">
             <div className="spinner"></div>
-            <p>Claude is analyzing your code...</p>
+            <p>Gemini is analyzing your code...</p>
           </div>
         )}
       </main>
@@ -167,8 +180,8 @@ Please format the documentation in Markdown.`,
       <footer className="app-footer">
         <p>
           Powered by{' '}
-          <a href="https://www.anthropic.com/" target="_blank" rel="noopener noreferrer">
-            Claude AI
+          <a href="https://ai.google.dev/" target="_blank" rel="noopener noreferrer">
+            Google Gemini AI
           </a>
         </p>
       </footer>
