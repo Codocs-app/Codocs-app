@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 
-const GEMINI_API_KEY = 'YOUR_ACTUAL_KEY';
+const GEMINI_API_KEY = 'AIzaSyBzJbqqcr3_fFONMHDoxo5cIk e8Z9qNwM';
 
 export default function App() {
   const [code, setCode] = useState('');
